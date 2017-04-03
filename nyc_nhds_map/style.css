@@ -1,0 +1,153 @@
+/*body {
+  fill: rgb(237, 255, 248);
+}*/
+
+#container {
+    margin:2%;
+    padding:20px;
+  }
+
+
+path.back {
+  stroke: lightgray;
+	stroke-width: 1px;
+	fill: rgb(237, 255, 248);  //rgb(237, 255, 248);
+
+}
+
+
+.boro {
+  stroke: lightgray;
+  fill-opacity:0.0;
+	stroke-width: 1px;
+}
+
+
+.nhd {
+  stroke: lightgray;
+  fill: rgb(124, 180, 224);
+  stroke-width: 1px;
+}
+
+.ht {
+  stroke: white;
+  fill-opacity:0.5;
+}
+
+
+.park {
+	stroke-width: 0px;
+  fill: rgb(173, 216, 138);
+}
+
+
+h1#title{
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #2e2e2e;
+  font-size: 40px;
+  font-weight: 300;
+  text-anchor: left;
+  position: fixed;
+  top: 0px;
+  left: 15px;
+
+}
+
+.rButton{
+  margin-right: 10px;
+}
+#formDiv {
+  position: fixed;
+  top: 90px;
+  left: 13px;
+}
+
+
+text {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.header{
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 30px;
+}
+
+
+
+#tooltip {
+  fill: #2e2e2e;
+  font-size: 12px;
+  font-weight: 300;
+  text-anchor: middle;
+}
+
+/* CARD  CSS*/
+#cardBack{
+  fill: rgba(196, 208, 199, .3)
+}
+
+#dID{
+  fill: #2e2e2e;
+  font-size: 20px;
+  font-weight: 300;
+  text-anchor: left;
+}
+
+
+.axis path {
+      display: none;}
+
+
+.axis2 line, .axis2 path {
+            fill: none;
+            stroke: #a8a6a6;
+            stroke-width: 1px;
+            shape-rendering: crispEdges;
+        }
+
+.y.axis2 path {
+      display: none;}
+
+
+.axis2 text {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 6px;
+  pointer-events: none;
+        }
+
+.plotline {
+  fill: none;
+  stroke: #a8a6a6;
+}
+
+.mainline {
+  fill: none;
+  stroke: #4ec677;
+  stroke-width: 5px;
+}
+
+.averageline {
+  fill: none;
+  stroke: #000000;
+  stroke-width: .5px;
+}
+
+#DistrictLegend {
+  fill: #4ec677;
+  
+}
+
+
+div.tooltip {   
+    position: absolute;         
+    text-align: center;         
+    width: 60px;                    
+    height: 28px;                               
+    font: 12px sans-serif;      
+    background: white;         
+    border: 1px solid darkgrey;
+    pointer-events: none;
+    padding:4px;
+}
