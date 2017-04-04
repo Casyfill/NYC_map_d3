@@ -1,22 +1,22 @@
-var width = 700, 
-    height = 600;
+var max_width = 700, 
+    max_height = 600;
 
 
 
 var projection = d3.geo.mercator()
   .center([-73.94, 40.70])
   .scale(50000)
-  .translate([(width) / 2, (height) / 2]);
+  .translate([(max_width) / 2, (max_height) / 2]);
 
 var path = d3.geo.path()
     .projection(projection);
 
 
 
-var svg = d3.select("#container")
+var svg = d3.select("#container")xx
   .append("svg")
   .attr("width", "100%")
-  .attr("height", height)
+  .attr("height", max_height)
   .append("g");
 
 
@@ -100,33 +100,35 @@ d3.json("data/borough.json", function(error, b) {
 })
 
 
-// d3.json("data/neighborhood.geojson", function(error, nyb) {
-//   console.log('nhds uploaded')
+d3.json("data/neighborhood.geojson", function(error, nyb) {
+  console.log('nhds uploaded, v2')
 
 
-//   var nhds = svg.append("g")
-//       .attr('id','nhds')
-//       .selectAll(".nhd")
-//       .data(nyb.features)
-//       .enter().append("path")
-//       .attr("class", "nhd")
-//       .attr("d", path)
-//       .attr("id", function(d) {
-//       return "nhd " + d.properties.area_id;
-//      }).attr("name", function(d) {
-//       return d.properties.name;
-//      });
+  var nhds = svg.append("g")
+      .attr('id','nhds')
+      .selectAll(".nhd")
+      .data(nyb.features)
+      .enter().append("path")
+      .attr("class", "nhd")
+      .attr("d", path)
+      .attr("id", function(d) {
+      return "nhd " + d.properties.area_id;
+     }).attr("name", function(d) {
+      return d.properties.name;
+     }).attr("hierarchy", function(d) {
+      return d.properties.hierarchy;     
+    });
 
-// })
+})
 
 
 d3.select(window).on('resize', sizeChange);
 
 function sizeChange() {
-      var mwidth  = Math.min($("#container").width(), width);
+      var mwidth  = Math.min($("#container").width(), max_width);
       console.log(mwidth)
       d3.select("svg").attr("transform", "scale(" + mwidth/700 + ")");
-      $("svg").height($("#container").width()*.86);
+      $("svg").height(Math.min($("#container").width()*.86, max_height));
 
 
 }
