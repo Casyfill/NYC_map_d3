@@ -7,12 +7,19 @@ var t = textures.lines()
           .stroke("#004C74")
           .background("#D4ECFA");
 
+var t2 = textures.lines()
+                .size(4)
+                .strokeWidth(.5)
+                .stroke("#004C74")
+                .background("white");
+
 var svg = d3.select("#container")
             .append("svg")
             .attr("width", "100%")
             .attr("height", max_height)
 
 svg.call(t);
+svg.call(t2);
 
 
 var projection = d3.geoMercator()
@@ -30,7 +37,7 @@ function ready(error, boundaries, csv_data){
 
   boundaries.features.forEach(function(d){
     var value = csv_data.filter(function(dd){return d['properties']['area_id'] == dd['area_id']})[0];
-    if(!value){d['properties']['value'] = null} else {d['properties']['value']=value['value']}
+    if(!value || value = ''){d['properties']['value'] = null} else {d['properties']['value']=value['value']}
   })
 
   // var ttip = d3.select("body").append("div")
@@ -41,7 +48,7 @@ function ready(error, boundaries, csv_data){
   var color_scale = d3.scaleLinear().domain([0, median_value, max_value]).range(['white', '#4BDDC2', '#004C74']);
   colorbar(median_value, max_value);
 
-  var parks = svg.append("g").attr('id','parks');
+  // var parks = svg.append("g").attr('id','parks');
   var bs = svg.append("g").attr('id','boros');
   var nhds = svg.append("g").attr('id','nhds');
 
@@ -78,20 +85,24 @@ function ready(error, boundaries, csv_data){
       .on("mouseover", handleMouseOver)
       .on("mouseout", handleMouseOut);
 
-  // parks.selectAll(".park")
-  //      .data(topojson.feature(prks, prks.objects.parks).features)
-  //      .enter().append("path")
-  //      .attr("class", "park")
-  //      .attr("d", path);
 
   // Functions
 
     function handleMouseOver(d, i) {  // Add interactivity
-      console.log(d.properties.name, d.properties.value);
+      console.log(d);
         // Use D3 to select element, change color and size
       d3.select(this)
         .transition()
         .style('fill', "#FDC436");
+
+      tooltip.transition()
+             .duration(200)
+            .style("opacity", .9);
+
+      tooltip.html('Hello')
+             .style("left", (d3.event.pageX) + "px")
+             .style("top", (d3.event.pageY - 28) + "px");
+
 
         //  // Specify where to put label of text
       // ttip.html(d.properties.name)
@@ -107,7 +118,11 @@ function ready(error, boundaries, csv_data){
 
         d3.select(this)
           .transition()
-          .style('fill', function(d){return color_scale(d['properties']['value'])});
+          .style('fill', function(d){return color_if_not_Null(d['properties']['value'])});
+
+        tooltip.transition()
+               .duration(500)
+               .style("opacity", 0);
         //
         // ttip.style("opacity",0);
         // nhd_name.text('');
@@ -120,9 +135,6 @@ d3.queue(2)
   .defer(d3.json, "data/boundaries.json")
   .defer(d3.csv, "data/example.csv")
   .await(ready);
-
-
-
 
 
 function or_null(value){
@@ -141,10 +153,24 @@ function or_null(value){
 //       console.log(mwidth)
 //       d3.select("svg").attr("transform", "scale(" + mwidth/700 + ")");
 //       $("svg").height(Math.min($("#container").width()*.86, max_height));
-//
-//
 // }
 
+function color_if_not_Null(value){
+  if(value != 'undefined' &&
+     value != 'NaN' &&
+     value != null &&
+     value != ''){
+       return color_scale(value)
+    } else {
+      return t2.call()
+    }
+}
+
+// tooltip
+
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
 // Colorbar
 
@@ -178,7 +204,7 @@ function colorbar(d_median, d_max){
          .style("fill", "url(#gradient)")
 
       var y = d3.scaleLinear().range([0, 150, 300]).domain([0, d_median, d_max]);
-      var yAxis = d3.axisBottom(y).tickValues([0, d_median, d_max])
+      var yAxis = d3.axisBottom(y).ticks(5);
 
       key.append("g")
          .attr("class", "y axis")
