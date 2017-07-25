@@ -1,3 +1,4 @@
+// version 0.2.1
 var max_height = 600,
     max_width = 600;
 
@@ -10,7 +11,7 @@ var t = textures.lines()
 var t2 = textures.lines()
                 .size(4)
                 .strokeWidth(.5)
-                .stroke("#004C74")
+                .stroke("lightgrey")
                 .background("white");
 
 var svg = d3.select("#container")
@@ -34,21 +35,29 @@ var path = d3.geoPath()
 
 function ready(error, boundaries, csv_data){
   if (error) throw error;
-
+  console.log()
   boundaries.features.forEach(function(d){
     var value = csv_data.filter(function(dd){return d['properties']['area_id'] == dd['area_id']})[0];
-    if(!value || value = ''){d['properties']['value'] = null} else {d['properties']['value']=value['value']}
+    if(!value || value == ''){d['properties']['value'] = null} else {d['properties']['value']=value['value']}
   })
 
-  // var ttip = d3.select("body").append("div")
-  //   .attr("class", "tooltip")
-  //   .style("opacity", 0);
   var max_value = d3.max( boundaries.features, function(d) { return d['properties']['value'] });
   var median_value = d3.median( boundaries.features, function(d) { return d['properties']['value'] });
   var color_scale = d3.scaleLinear().domain([0, median_value, max_value]).range(['white', '#4BDDC2', '#004C74']);
   colorbar(median_value, max_value);
 
-  // var parks = svg.append("g").attr('id','parks');
+  function color_if_not_Null(value){
+    if(value != 'undefined' &&
+       value != 'NaN' &&
+       value != null &&
+       value != ''){
+         return color_scale(value)
+      } else {
+        return t2.url()
+      }
+  }
+
+
   var bs = svg.append("g").attr('id','boros');
   var nhds = svg.append("g").attr('id','nhds');
 
@@ -81,7 +90,7 @@ function ready(error, boundaries, csv_data){
       .attr("class", "hood")
       .attr("d", path)
       .attr("name", function(d) { return d.properties.name;})
-      .style('fill', function(d) { return color_scale(d['properties']['value'])})
+      .style('fill', function(d) { return color_if_not_Null(d['properties']['value'])})
       .on("mouseover", handleMouseOver)
       .on("mouseout", handleMouseOut);
 
@@ -99,9 +108,14 @@ function ready(error, boundaries, csv_data){
              .duration(200)
             .style("opacity", .9);
 
-      tooltip.html('Hello')
-             .style("left", (d3.event.pageX) + "px")
-             .style("top", (d3.event.pageY - 28) + "px");
+      tooltip.style("left", (d3.event.pageX + 10) + "px")
+             .style("top", (d3.event.pageY) + "px");
+
+      tooltip.select('h4')
+             .text(d.properties.name)
+
+      tooltip.select('p')
+             .text('Median Asking Price: ' + or_NA(d.properties.value))
 
 
         //  // Specify where to put label of text
@@ -131,9 +145,10 @@ function ready(error, boundaries, csv_data){
 }
 
 
+
 d3.queue(2)
   .defer(d3.json, "data/boundaries.json")
-  .defer(d3.csv, "data/example.csv")
+  .defer(d3.csv, "data/var/" +  getParameterByName('data') + '.csv')
   .await(ready);
 
 
@@ -144,6 +159,13 @@ function or_null(value){
     return value;
 }
 
+
+function or_NA(value){
+    if (value === '') {
+        value = "NA";
+       }
+    return value;
+}
 // RESIZE
 
 // d3.select(window).on('resize', sizeChange);
@@ -155,22 +177,16 @@ function or_null(value){
 //       $("svg").height(Math.min($("#container").width()*.86, max_height));
 // }
 
-function color_if_not_Null(value){
-  if(value != 'undefined' &&
-     value != 'NaN' &&
-     value != null &&
-     value != ''){
-       return color_scale(value)
-    } else {
-      return t2.call()
-    }
-}
+
 
 // tooltip
 
 var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
+
+tooltip.append('h4');
+tooltip.append('p');
 
 // Colorbar
 
@@ -204,7 +220,7 @@ function colorbar(d_median, d_max){
          .style("fill", "url(#gradient)")
 
       var y = d3.scaleLinear().range([0, 150, 300]).domain([0, d_median, d_max]);
-      var yAxis = d3.axisBottom(y).ticks(5);
+      var yAxis = d3.axisBottom(y).tickValues([0, d_median, d_max]);
 
       key.append("g")
          .attr("class", "y axis")
@@ -217,3 +233,15 @@ function colorbar(d_median, d_max){
 
 
 }
+
+
+function getParameterByName(name, url) {
+     if (!url) url = window.location.href;
+     name = name.replace(/[\[\]]/g, "\\$&");
+     var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+     if (!results) return null;
+     if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " ")).replace(/\"/g, ""); //Remove qoutes
+    }
+
