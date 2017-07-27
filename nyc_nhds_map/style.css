@@ -7,8 +7,6 @@ h1, h2 {display:inline;}
 h1#title {
   font-size: 24px;
   font-weight: bold;
-  margin-bottom: 10px;
-  fill: #0280C5;
 
 }
 

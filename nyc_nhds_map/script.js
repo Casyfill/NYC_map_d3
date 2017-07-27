@@ -5,8 +5,8 @@ var max_height = 500,
 var t = textures.lines()
           .size(4)
           .strokeWidth(.5)
-          .stroke("#004C74")
-          .background("#D4ECFA");
+          .stroke("#53baf3")
+          .background("white");
 
 var t2 = textures.lines()
                 .size(4)
@@ -48,8 +48,6 @@ function ready(error, boundaries, data){
   d3.select("h1")
     .text(data['title'])
 
-  d3.select("h2")
-    .text(data['subtitle'])
 
   var datas = data['data']
 
