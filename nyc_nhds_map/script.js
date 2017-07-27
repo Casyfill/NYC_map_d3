@@ -11,7 +11,7 @@ var t = textures.lines()
 var t2 = textures.lines()
                 .size(4)
                 .strokeWidth(.5)
-                .stroke("lightgrey")
+                .stroke('#4BDDC2')
                 .background("white");
 
 var svg = d3.select("#container")
@@ -29,9 +29,10 @@ var infodiv = d3.select('#container')
                 .attr("id", "infodiv")
 
 
-var curr_format = d3.format("$,.0f")
+// var curr_format = d3.format("$,.0f")
+var pct_format = d3.format(".1%")
 var projection = d3.geoMercator()
-  .center([-74.00, 40.70])
+  .center([-74.00, 40.68])
   .scale(50000)
   .translate([(max_width) / 2, (max_height) / 2]);
 
@@ -40,18 +41,27 @@ var path = d3.geoPath()
 
 
 
-function ready(error, boundaries, csv_data){
+function ready(error, boundaries, data){
   if (error) throw error;
-  console.log()
+  console.log(data)
+  
+  d3.select("h1")
+    .text(data['title'])
+
+  d3.select("h2")
+    .text(data['subtitle'])
+
+  var datas = data['data']
   boundaries.features.forEach(function(d){
-    var value = csv_data.filter(function(dd){return d['properties']['area_id'] == dd['area_id']})[0];
+
+    var value = datas.filter(function(dd){return d['properties']['area_id'] == dd['area_id']})[0];
     if(!value || value == ''){d['properties']['value'] = null} else {d['properties']['value']=value['value']}
   })
 
   var max_value = d3.max( boundaries.features, function(d) { return d['properties']['value'] });
   var median_value = d3.median( boundaries.features, function(d) { return d['properties']['value'] });
-  var color_scale = d3.scaleLinear().domain([0, median_value, max_value]).range(['white', '#4BDDC2', '#004C74']);
-  colorbar(median_value, max_value);
+  var color_scale = d3.scaleLinear().domain([0, median_value, max_value]).range(['#D4ECFA', '#0280C5', '#004C74']);
+  colorbar(median_value, 1);
 
   function color_if_not_Null(value){
     if(value != 'undefined' &&
@@ -126,7 +136,7 @@ function ready(error, boundaries, csv_data){
              .text(d.properties.name)
 
       tooltip.select('p')
-             .text('Median Asking Price: ' + or_NA(d.properties.value))
+             .text(data['variable']  + ' ' + or_NA(d.properties.value))
 
 
         //  // Specify where to put label of text
@@ -159,7 +169,7 @@ function ready(error, boundaries, csv_data){
 
 d3.queue(2)
   .defer(d3.json, "data/boundaries.json")
-  .defer(d3.csv, "data/var/" +  data_filename() + '.csv')
+  .defer(d3.json, "data/var/" +  getParameterByName('data') + '.json')
   .await(ready);
 
 
@@ -175,7 +185,7 @@ function or_NA(value){
     if (value === '') {
         value = "NA";
        } else {
-        value = curr_format(value)
+        value = pct_format(value)
        }
     return value;
 }
@@ -216,11 +226,11 @@ function colorbar(d_median, d_max){
         .attr("spreadMethod", "pad");
 
       legend.append("stop").attr("offset", "0%")
-        .attr("stop-color", 'white')
+        .attr("stop-color", '#D4ECFA')
         .attr("stop-opacity", 1);
 
       legend.append("stop").attr("offset", "50%")
-        .attr("stop-color", '#4BDDC2')
+        .attr("stop-color", '#0280C5')
         .attr("stop-opacity", 1);
 
       legend.append("stop").attr("offset", "100%")
@@ -232,8 +242,10 @@ function colorbar(d_median, d_max){
          .attr("height", 10)
          .style("fill", "url(#gradient)")
 
-      var y = d3.scaleLinear().range([0, 150, 300]).domain([0, d_median, d_max]);
-      var yAxis = d3.axisBottom(y).tickValues([0, d_median, d_max]);
+      var y = d3.scaleLinear().range([0, 300]).domain([0, 1]);
+      var yAxis = d3.axisBottom(y)
+                    .tickValues([0, .5, 1])
+                    .tickFormat(pct_format);
 
       key.append("g")
          .attr("class", "y axis")
@@ -254,8 +266,8 @@ function getParameterByName(name, url) {
      name = name.replace(/[\[\]]/g, "\\$&");
      var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
             results = regex.exec(url);
-     if (!results) return null;
-     if (!results[2]) return 'test';
+     if (!results) return 'example';
+     if (!results[2]) return '';
      return decodeURIComponent(results[2].replace(/\+/g, " ")).replace(/\"/g, ""); //Remove qoutes
     }
 
