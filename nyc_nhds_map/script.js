@@ -19,12 +19,19 @@ var svg = d3.select("#container")
             .attr("width", "100%")
             .attr("height", max_height)
 
+
 svg.call(t);
 svg.call(t2);
 
 
+var infodiv = d3.select('#container')
+                .append("div")
+                .attr("id", "infodiv")
+
+
+var curr_format = d3.format("$,.0f")
 var projection = d3.geoMercator()
-  .center([-74.04, 40.70])
+  .center([-74.00, 40.70])
   .scale(50000)
   .translate([(max_width) / 2, (max_height) / 2]);
 
@@ -95,6 +102,10 @@ function ready(error, boundaries, csv_data){
       .on("mouseout", handleMouseOut);
 
 
+
+
+
+
   // Functions
 
     function handleMouseOver(d, i) {  // Add interactivity
@@ -148,7 +159,7 @@ function ready(error, boundaries, csv_data){
 
 d3.queue(2)
   .defer(d3.json, "data/boundaries.json")
-  .defer(d3.csv, "data/var/" +  getParameterByName('data') + '.csv')
+  .defer(d3.csv, "data/var/" +  data_filename() + '.csv')
   .await(ready);
 
 
@@ -163,6 +174,8 @@ function or_null(value){
 function or_NA(value){
     if (value === '') {
         value = "NA";
+       } else {
+        value = curr_format(value)
        }
     return value;
 }
@@ -235,13 +248,14 @@ function colorbar(d_median, d_max){
 }
 
 
+
 function getParameterByName(name, url) {
      if (!url) url = window.location.href;
      name = name.replace(/[\[\]]/g, "\\$&");
      var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
             results = regex.exec(url);
      if (!results) return null;
-     if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " ")).replace(/\"/g, ""); //Remove qoutes
+     if (!results[2]) return 'test';
+     return decodeURIComponent(results[2].replace(/\+/g, " ")).replace(/\"/g, ""); //Remove qoutes
     }
 

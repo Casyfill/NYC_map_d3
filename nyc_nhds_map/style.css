@@ -1,5 +1,5 @@
 body {
-  background: #D4ECFA;
+  background: white; /*#D4ECFA;*/
   font-family: 'Source Sans Pro', sans-serif;
 }
 h1, h2 {display:inline;}
@@ -74,16 +74,24 @@ path.domain  {
 div.tooltip {
     position: absolute;
     text-align: left;
-    /*width: 80px;
-    height: 40px;*/
-    padding: 2px;
+    wid/*th: 80px;
+    hei*/ght: 40px;
+    padding: 15px;
     font: 12px sans-serif;
     background: white;
-    border: 0px;
+    border: 1px;
+    border-style: solid;
+    border-color: #D8DEE2;
     pointer-events: none;
 }
 
 .tooltip h4 {
   font-size: 14px;
-  padding-top: 0;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.tooltip p {
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
