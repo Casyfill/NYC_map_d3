@@ -7,7 +7,7 @@ h1, h2 {display:inline;}
 h1#title {
   font-size: 24px;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   fill: #0280C5;
 
 }
@@ -74,8 +74,6 @@ path.domain  {
 div.tooltip {
     position: absolute;
     text-align: left;
-    wid/*th: 80px;
-    hei*/ght: 40px;
     padding: 15px;
     font: 12px sans-serif;
     background: white;

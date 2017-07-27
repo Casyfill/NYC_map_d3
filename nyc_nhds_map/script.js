@@ -1,5 +1,5 @@
 // version 0.2.1
-var max_height = 600,
+var max_height = 500,
     max_width = 600;
 
 var t = textures.lines()
@@ -32,8 +32,8 @@ var infodiv = d3.select('#container')
 // var curr_format = d3.format("$,.0f")
 var pct_format = d3.format(".1%")
 var projection = d3.geoMercator()
-  .center([-74.00, 40.68])
-  .scale(50000)
+  .center([-73.92, 40.74])
+  .scale(55000)
   .translate([(max_width) / 2, (max_height) / 2]);
 
 var path = d3.geoPath()
@@ -43,7 +43,7 @@ var path = d3.geoPath()
 
 function ready(error, boundaries, data){
   if (error) throw error;
-  console.log(data)
+  console.log(boundaries);
   
   d3.select("h1")
     .text(data['title'])
@@ -52,15 +52,18 @@ function ready(error, boundaries, data){
     .text(data['subtitle'])
 
   var datas = data['data']
-  boundaries.features.forEach(function(d){
 
+  boundaries.features = boundaries.features.filter(function(dd){ return dd['properties']['Borough'] != "Staten Island"});
+  console.log(boundaries);
+
+  boundaries.features.forEach(function(d){
     var value = datas.filter(function(dd){return d['properties']['area_id'] == dd['area_id']})[0];
     if(!value || value == ''){d['properties']['value'] = null} else {d['properties']['value']=value['value']}
   })
 
   var max_value = d3.max( boundaries.features, function(d) { return d['properties']['value'] });
   var median_value = d3.median( boundaries.features, function(d) { return d['properties']['value'] });
-  var color_scale = d3.scaleLinear().domain([0, median_value, max_value]).range(['#D4ECFA', '#0280C5', '#004C74']);
+  var color_scale = d3.scaleLinear().domain([0, median_value, max_value]).range(['#D4ECFA', '#53baf3', '#004C74']);
   colorbar(median_value, 1);
 
   function color_if_not_Null(value){
@@ -77,21 +80,6 @@ function ready(error, boundaries, data){
 
   var bs = svg.append("g").attr('id','boros');
   var nhds = svg.append("g").attr('id','nhds');
-
-  // infoblock
-  // var card = svg.append("g")
-  //     .attr("id", "infocard")
-  //     .attr("transform", "translate(0,50)");
-  //
-  // var card_back = card.append("rect")
-  //     .attr("id", 'cardBack')
-  //     .attr("width", 310)
-  //     .attr("height", 100);
-  //
-  // var nhd_name = card.append("text")
-  //                    .attr('id', 'tooltip')
-  //                    .attr("x", 10)
-  //                    .attr("y", 25);
 
   bs.selectAll(".boro")
     .data(boundaries.features.filter(function(d){return d["properties"]['area_type']=="borough"}))
@@ -113,7 +101,13 @@ function ready(error, boundaries, data){
 
 
 
-
+function TooltipPos(mouseX){
+  if (mouseX < 450){
+    return mouseX + 10
+  } else {
+    return mouseX - 200
+  }
+}
 
 
   // Functions
@@ -129,7 +123,7 @@ function ready(error, boundaries, data){
              .duration(200)
             .style("opacity", .9);
 
-      tooltip.style("left", (d3.event.pageX + 10) + "px")
+      tooltip.style("left", TooltipPos(d3.event.pageX) + "px")
              .style("top", (d3.event.pageY) + "px");
 
       tooltip.select('h4')
@@ -182,7 +176,7 @@ function or_null(value){
 
 
 function or_NA(value){
-    if (value === '') {
+    if (value === '' || value === null) {
         value = "NA";
        } else {
         value = pct_format(value)
@@ -216,13 +210,13 @@ tooltip.append('p');
 function colorbar(d_median, d_max){
       var key = svg.append('g')
                    .attr("id", "legend")
-                   .attr("width", 300).attr("height", 120)
-                   .attr("transform", "translate(280,520)");
+                   .attr("width", 120).attr("height", 300)
+                   .attr("transform", "translate(12,25)");
 
       var legend = key.append("defs").append("svg:linearGradient")
         .attr("id", "gradient")
         .attr("y1", "100%").attr("x1", "0%")
-        .attr("y2", "100%").attr("x2", "100%")
+        .attr("y2", "0%").attr("x2", "0%")
         .attr("spreadMethod", "pad");
 
       legend.append("stop").attr("offset", "0%")
@@ -230,7 +224,7 @@ function colorbar(d_median, d_max){
         .attr("stop-opacity", 1);
 
       legend.append("stop").attr("offset", "50%")
-        .attr("stop-color", '#0280C5')
+        .attr("stop-color", '#53baf3')
         .attr("stop-opacity", 1);
 
       legend.append("stop").attr("offset", "100%")
@@ -238,19 +232,19 @@ function colorbar(d_median, d_max){
         .attr("stop-opacity", 1);
 
       key.append("rect")
-         .attr("width", 300)
-         .attr("height", 10)
+         .attr("width", 10)
+         .attr("height", 300)
          .style("fill", "url(#gradient)")
 
-      var y = d3.scaleLinear().range([0, 300]).domain([0, 1]);
-      var yAxis = d3.axisBottom(y)
+      var y = d3.scaleLinear().range([0, 300]).domain([1, 0]);
+      var yAxis = d3.axisRight(y)
                     .tickValues([0, .5, 1])
                     .tickFormat(pct_format);
 
       key.append("g")
          .attr("class", "y axis")
          .call(yAxis)
-         .attr("transform", "translate(0, 15)")
+         .attr("transform", "translate(15, 0)")
         //  .append("text")
       //    .attr("dy", ".62em")
       //    .style("text-anchor", "end")
